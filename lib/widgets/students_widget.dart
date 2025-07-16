@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../providers/app_provider.dart';
 import '../models/student.dart';
+import 'payment_calendar_widget.dart';
 
 class StudentsWidget extends StatelessWidget {
   const StudentsWidget({super.key});
@@ -18,73 +20,161 @@ class StudentsWidget extends StatelessWidget {
 
         final students = appProvider.filteredStudents;
 
-        return Column(
-          children: [
-            // Search and Filter Bar
-            Container(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      decoration: const InputDecoration(
-                        hintText: 'Search students...',
-                        prefixIcon: Icon(Icons.search),
-                      ),
-                      onChanged: (value) => appProvider.setSearchQuery(value),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  PopupMenuButton<String>(
-                    icon: const Icon(Icons.filter_list),
-                    onSelected: (value) => _handleFilter(context, appProvider, value),
-                    itemBuilder: (context) => [
-                      const PopupMenuItem(
-                        value: 'all',
-                        child: Text('All Students'),
-                      ),
-                      const PopupMenuItem(
-                        value: 'active',
-                        child: Text('Active Only'),
-                      ),
-                      const PopupMenuItem(
-                        value: 'inactive',
-                        child: Text('Inactive Only'),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+        return Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                const Color(0xFFF8F9FF),
+                Colors.white.withOpacity(0.8),
+              ],
             ),
-            
-            // Students List
-            Expanded(
-              child: students.isEmpty
-                  ? const Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.people_outline, size: 64, color: Colors.grey),
-                          SizedBox(height: 16),
-                          Text(
-                            'No students found',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.grey,
+          ),
+          child: Column(
+            children: [
+              // Modern Search and Filter Bar
+              Container(
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
                             ),
+                          ],
+                        ),
+                        child: TextField(
+                          decoration: InputDecoration(
+                            hintText: 'Search students...',
+                            prefixIcon: Icon(
+                              Icons.search_rounded,
+                              color: Colors.grey.shade500,
+                            ),
+                            border: InputBorder.none,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 16,
+                            ),
+                          ),
+                          onChanged: (value) => appProvider.setSearchQuery(value),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
                           ),
                         ],
                       ),
-                    )
-                  : ListView.builder(
-                      itemCount: students.length,
-                      itemBuilder: (context, index) {
-                        final student = students[index];
-                        return _buildStudentCard(context, appProvider, student);
-                      },
+                      child: PopupMenuButton<String>(
+                        icon: Icon(
+                          Icons.filter_list_rounded,
+                          color: Colors.grey.shade600,
+                        ),
+                        onSelected: (value) => _handleFilter(context, appProvider, value),
+                        itemBuilder: (context) => [
+                          const PopupMenuItem(
+                            value: 'all',
+                            child: Text('All Students'),
+                          ),
+                          const PopupMenuItem(
+                            value: 'active',
+                            child: Text('Active Only'),
+                          ),
+                          const PopupMenuItem(
+                            value: 'inactive',
+                            child: Text('Inactive Only'),
+                          ),
+                        ],
+                      ),
                     ),
-            ),
-          ],
+                  ],
+                ),
+              ),
+              
+              // Students List with Payment Calendar
+              Expanded(
+                child: students.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 100,
+                              height: 100,
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade100,
+                                borderRadius: BorderRadius.circular(50),
+                              ),
+                              child: Icon(
+                                Icons.people_outline_rounded,
+                                size: 48,
+                                color: Colors.grey.shade400,
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            Text(
+                              'No students found',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Add students to get started',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey.shade500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : AnimationLimiter(
+                        child: ListView.builder(
+                          padding: const EdgeInsets.only(bottom: 20),
+                          itemCount: students.length,
+                          itemBuilder: (context, index) {
+                            final student = students[index];
+                            final payments = appProvider.getPaymentsByStudent(student.id);
+                            
+                            return AnimationConfiguration.staggeredList(
+                              position: index,
+                              duration: const Duration(milliseconds: 600),
+                              child: SlideAnimation(
+                                verticalOffset: 50.0,
+                                child: FadeInAnimation(
+                                  child: PaymentCalendarWidget(
+                                    student: student,
+                                    payments: payments,
+                                    onTap: () => _showStudentDetails(context, appProvider, student),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+              ),
+            ],
+          ),
         );
       },
     );
