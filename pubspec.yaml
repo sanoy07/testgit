@@ -1,0 +1,61 @@
+name: hostel_payment_tracker
+description: "A Flutter app for tracking hostel fee payments with local storage"
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  
+  # Database
+  sqflite: ^2.3.0
+  path: ^1.8.3
+  
+  # State Management
+  provider: ^6.1.1
+  
+  # Date & Time
+  intl: ^0.19.0
+  
+  # UI Components
+  flutter_slidable: ^3.0.1
+  flutter_staggered_animations: ^1.1.1
+  
+  # Local Authentication
+  local_auth: ^2.1.6
+  
+  # File operations
+  path_provider: ^2.1.1
+  
+  # CSV Export
+  csv: ^5.0.2
+  
+  # Shared Preferences for simple storage
+  shared_preferences: ^2.2.2
+  
+  # UUID Generation
+  uuid: ^4.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - assets/images/
+    - assets/icons/
+  
+  fonts:
+    - family: Roboto
+      fonts:
+        - asset: fonts/Roboto-Regular.ttf
+        - asset: fonts/Roboto-Bold.ttf
+          weight: 700

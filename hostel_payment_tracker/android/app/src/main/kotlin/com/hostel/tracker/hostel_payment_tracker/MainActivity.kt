@@ -1,0 +1,5 @@
+package com.hostel.tracker.hostel_payment_tracker
+
+import io.flutter.embedding.android.FlutterActivity
+
+class MainActivity: FlutterActivity()
